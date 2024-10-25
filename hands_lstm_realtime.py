@@ -6,6 +6,10 @@ import tensorflow as tf
 import threading
 import h5py
 import json
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dropout, Dense, InputLayer
+from tensorflow.keras.initializers import Orthogonal, GlorotUniform
+from tensorflow.keras.saving import register_keras_serializable
 
 cap = cv2.VideoCapture(0)
 
@@ -13,13 +17,19 @@ mpHands = mp.solutions.hands
 hands = mpHands.Hands(max_num_hands=1)
 mpDraw = mp.solutions.drawing_utils
 
+@register_keras_serializable()
+class CustomSequential(Sequential):
+    pass
+
 custom_objects = {
-    'Orthogonal': tf.keras.initializers.Orthogonal
+    'Orthogonal': Orthogonal,
+    'CustomSequential': CustomSequential,
+    'Sequential': CustomSequential  # Ensure 'Sequential' points to the registered class
 }
 
-with h5py.File("lstm-hand-gripping.h5", 'r') as f:
+with h5py.File("lstm-hand-grasping.h5", 'r') as f:
     model_config = f.attrs.get('model_config')
-    model_config = json.loads(model_config)  
+    model_config = json.loads(model_config)
 
     for layer in model_config['config']['layers']:
         if 'time_major' in layer['config']:
@@ -84,15 +94,15 @@ def detect(model, lm_list):
     percentage_result = result * 100
     print(f"Model prediction result: {percentage_result}")
     if result[0][0] > 0.5:
-        label = "not grasped"
+        label = "grizzy"
     elif result[0][1] > 0.5:
-        label = "grasping"
+        label = "spider"
     elif result[0][2] > 0.5:
-        label = "carrying"
+        label = "fist"
     elif result[0][3] > 0.5:
-        label = "cupping"
-    if label in ["grasping", "carrying", "cupping"]:
-        label = "grasped"
+        label = "gang"
+    # if label in ["grasping", "carrying", "cupping"]:
+    #     label = "grasped"
     return str(label)
 
 

@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 neutral_df = pd.read_csv("neutral.txt")
 resting_df = pd.read_csv("resting.txt")
 holding_df = pd.read_csv("holding.txt")
-gripping_df = pd.read_csv("gripping.txt")
+gripping_df = pd.read_csv("griping.txt")
 
 X = []
 y = []
@@ -56,6 +56,6 @@ model.add(Dense(units=4, activation="softmax"))
 
 model.compile(optimizer="adam", metrics=["accuracy"], loss="sparse_categorical_crossentropy")
 
-model.fit(X_train, y_train, epochs=100, batch_size=32, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, epochs=20, batch_size=32, validation_data=(X_test, y_test))
 
 model.save("lstm-hand-grasping.h5")
